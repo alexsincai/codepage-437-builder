@@ -1,0 +1,92 @@
+:root {
+    --bg: url("monochrome_packed.png");
+    --size: 15px;
+    --tilesx: 48;
+    --tilesy: 22;
+}
+
+body {
+    color: black;
+    font: 12px / var(--size) monospace;
+    padding: 0.25em;
+    display: grid;
+    grid-gap: 0.25em;
+    grid-template-columns: calc(16 * var(--size)) 1fr 1fr 1fr 1fr;
+    grid-template-rows: 1fr 1fr auto;
+}
+
+#render {
+    display: flex;
+    flex-direction: column;
+    grid-row: 1 / -1;
+}
+
+#renderer {
+    display: grid;
+    gap: 0;
+    grid-template-columns: repeat(16, var(--size));
+    grid-template-rows: repeat(16, var(--size));
+    background: black;
+}
+
+.symbol {
+    display: block;
+    width: var(--size);
+    height: var(--size);
+    box-sizing: border-box;
+    position: relative;
+    background: black var(--bg) top left;
+}
+
+.symbol:hover {
+    box-shadow: inset 1px 1px 1px red, inset -1px -1px 1px red;
+}
+
+#renderer:hover .symbol::after {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--size);
+    height: var(--size);
+    text-align: center;
+    color: red;
+    content: attr(data-icon);
+}
+
+label[for="symbolx"],
+label[for="symboly"] {
+    grid-column-end: span 2;
+}
+
+label[for="symbolx"] {
+    grid-column-start: 2;
+}
+
+input[type="range"] {
+    width: 100%;
+}
+
+#holder {
+    grid-column: 2 / -1;
+    background-size: cover;
+    position: relative;
+    display: grid;
+    gap: 0;
+    grid-template-columns: repeat(var(--tilesx), 1fr);
+    grid-template-rows: repeat(var(--tilesy), 1fr);
+}
+
+#holder span {
+    background: red;
+    mix-blend-mode: difference;
+    display: block;
+    grid-column-start: 1;
+    grid-row-start: 1;
+}
+
+img {
+    width: 100%;
+    height: auto;
+    grid-row: 1 / -1;
+    grid-column: 1 / -1;
+}
