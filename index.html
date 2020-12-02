@@ -2069,13 +2069,10 @@
             <span>Tiles Y </span>
             <input type="number" id="tilesy" min="1" max="50" value="22" />
         </label>
-        <a href="#" id="renderlink">Render</a>
         <div id="code"></div>
-        <label for="symbolx"><input type="range" id="symbolx" min="0" /></label>
-        <label for="symboly"><input type="range" id="symboly" min="0" /></label>
         <div id="holder">
-            <span>&nbsp;</span>
-            <img src="monochrome_packed.png" alt="" />
+            <span id="focus" draggable="true">&nbsp;</span>
+            <img id="target" src="monochrome_packed.png" alt="" />
         </div>
         <script src="script.js"></script>
     </body>

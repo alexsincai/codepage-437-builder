@@ -4,18 +4,17 @@ const saveData = (data) =>
 
 const getCssData = (prop) =>
     parseInt(
-        getComputedStyle(document.documentElement).getPropertyValue(`--${prop}`)
+        getComputedStyle(document.documentElement).getPropertyValue(
+            `--${prop}`
+        ),
+        10
     );
 
 const setCssData = (prop, val) =>
     document.documentElement.style.setProperty(`--${prop}`, val);
 
-const setSliders = () =>
-    ["symbolx", "symboly"].forEach((s) =>
-        document
-            .querySelector(`#${s}`)
-            .setAttribute("max", getCssData(s.replace("symbol", "tiles")))
-    );
+const mapRange = (v, im = 0, ix = 1, om = 1, ox = 100) =>
+    ((v - im) * (ox - om)) / (ix - im) + om;
 
 const processTiles = (data = {}) => ({
     ...data,
@@ -24,27 +23,11 @@ const processTiles = (data = {}) => ({
     })),
 });
 
-const setTileSize = (prop) => {
-    document.querySelector(`#${prop}`).addEventListener("change", (e) => {
-        let v = parseInt(e.target.value);
-        setCssData(prop, v);
-        data[prop] = v;
-        saveData(processTiles(data));
-        setSliders();
-    });
-    setSliders();
-};
+const updateGraphic = (el) => {
+    let s = size + 1;
 
-const setSymbol = (e) => {
-    last = e.target;
-    document.querySelector("#symbolx").value = last.dataset.x;
-    document.querySelector("#symboly").value = last.dataset.y;
-
-    document.querySelector("#code").innerText = last.dataset.code;
-
-    let span = document.querySelector("#holder span");
-    span.style.gridColumnStart = parseInt(last.dataset.x, 10) + 1;
-    span.style.gridRowStart = parseInt(last.dataset.y, 10) + 1;
+    el.style.backgroundPositionX = `-${el.dataset.x * s}px`;
+    el.style.backgroundPositionY = `-${el.dataset.y * s}px`;
 };
 
 const draw = (el, i) => {
@@ -58,26 +41,7 @@ const draw = (el, i) => {
             el.dataset.y = data.tiles[i].y;
         }
     }
-
-    let s = size + 1;
-
-    el.style.backgroundPositionX = `-${parseInt(el.dataset.x, 10) * s}px`;
-    el.style.backgroundPositionY = `-${parseInt(el.dataset.y, 10) * s}px`;
-};
-
-const updateSymbol = (e) => {
-    let prop = e.target.id.replace("symbol", "");
-    last.dataset[prop] = Math.max(0, parseInt(e.target.value, 10) - 1);
-
-    saveData(processTiles(data));
-    draw(last);
-
-    let span = document.querySelector("#holder span");
-    if (prop === "x") {
-        span.style.gridColumnStart = e.target.value;
-    } else {
-        span.style.gridRowStart = e.target.value;
-    }
+    updateGraphic(el);
 };
 
 let data = loadData() || {};
@@ -88,33 +52,60 @@ const size = data.size || getCssData("size");
 let tilesx = data.tilesx || getCssData("tilesx");
 let tilesy = data.tilesy || getCssData("tilesy");
 
-["tilesx", "tilesy"].forEach((p) => setTileSize(p));
+let focal = document.querySelector("#focus");
+const target = document.querySelector("#target");
 
-["symbolx", "symboly"].forEach((s) =>
-    document.querySelector(`#${s}`).addEventListener("change", updateSymbol)
-);
-
-document.querySelectorAll(".symbol").forEach((s, i) => {
-    draw(s, i);
-    s.addEventListener("click", setSymbol);
-});
-
-document.querySelector("#holder").addEventListener("mouseover", () => {
-    html2canvas(document.querySelector("#renderer"), {
-        onrendered: (c) => {
-            document.querySelector("#output").innerHTML = "";
-            document.querySelector("#output").append(c);
-            canvas = c;
-        },
-    });
-});
-
-document.querySelector("#renderlink").addEventListener("click", (e) => {
-    let imagedata = canvas.toDataURL("image/png");
-    let newdata = imagedata.replace(
-        /^data:image\/png/,
-        "data:application/octet-stream"
+const setup = () => {
+    ["tilesx", "tilesy"].forEach((num) =>
+        document.querySelector(`#${num}`).addEventListener("change", (e) => {
+            const val = parseInt(e.target.value, 10);
+            data[num] = val;
+            setCssData(num, v);
+            saveData(processTiles(data));
+        })
     );
-    e.target.setAttribute("download", "testfont.png");
-    e.target.setAttribute("href", newdata);
-});
+
+    document.querySelectorAll(".symbol").forEach((s, i) => {
+        draw(s, i);
+        s.addEventListener("click", (e) => {
+            last = e.target;
+            document.querySelector("#code").innerText = last.dataset.code;
+
+            focal.style.gridColumnStart = parseInt(last.dataset.x, 10) + 1;
+            focal.style.gridRowStart = parseInt(last.dataset.y, 10) + 1;
+        });
+    });
+
+    document.querySelector("#holder").addEventListener("mouseover", () => {
+        html2canvas(document.querySelector("#renderer"), {
+            onrendered: (c) => {
+                document.querySelector("#output").innerHTML = "";
+                document.querySelector("#output").append(c);
+                canvas = c;
+            },
+        });
+    });
+
+    target.addEventListener("dragover", (e) => e.preventDefault());
+    target.addEventListener("drop", (e) => {
+        const r = target.getClientRects()[0];
+        let left = r.left;
+        let right = r.left + r.width;
+        let top = r.top;
+        let bottom = r.top + r.height;
+
+        let x = Math.floor(mapRange(e.clientX, left, right, 1, tilesx));
+        let y = Math.floor(mapRange(e.clientY, top, bottom, 1, tilesy));
+
+        focal.style.gridColumnStart = x;
+        focal.style.gridRowStart = y;
+
+        last.dataset.x = x - 1;
+        last.dataset.y = y - 1;
+
+        updateGraphic(last);
+        saveData(processTiles(data));
+    });
+};
+
+setup();

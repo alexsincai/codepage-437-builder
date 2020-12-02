@@ -11,8 +11,8 @@ body {
     padding: 0.25em;
     display: grid;
     grid-gap: 0.25em;
-    grid-template-columns: calc(16 * var(--size)) 1fr 1fr 1fr 1fr;
-    grid-template-rows: 1fr 1fr auto;
+    grid-template-columns: calc(16 * var(--size)) 1fr 1fr 1fr;
+    grid-template-rows: 1fr auto;
 }
 
 #render {
@@ -51,19 +51,6 @@ body {
     text-align: center;
     color: red;
     content: attr(data-icon);
-}
-
-label[for="symbolx"],
-label[for="symboly"] {
-    grid-column-end: span 2;
-}
-
-label[for="symbolx"] {
-    grid-column-start: 2;
-}
-
-input[type="range"] {
-    width: 100%;
 }
 
 #holder {
