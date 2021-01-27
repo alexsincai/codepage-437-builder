@@ -1,17 +1,17 @@
 :root {
     --bg: url("monochrome_packed.png");
-    --size: 15px;
+    --size: 16;
     --tilesx: 48;
     --tilesy: 22;
 }
 
 body {
     color: black;
-    font: 12px / var(--size) monospace;
+    font: 12px / calc(1px * var(--size)) monospace;
     padding: 0.25em;
     display: grid;
     grid-gap: 0.25em;
-    grid-template-columns: calc(16 * var(--size)) 1fr 1fr 1fr;
+    grid-template-columns: calc(16 * var(--size) * 1px) 1fr 1fr 1fr;
     grid-template-rows: 1fr auto;
 }
 
@@ -24,15 +24,15 @@ body {
 #renderer {
     display: grid;
     gap: 0;
-    grid-template-columns: repeat(16, var(--size));
-    grid-template-rows: repeat(16, var(--size));
+    grid-template-columns: repeat(16, calc(1px * var(--size)));
+    grid-template-rows: repeat(16, calc(1px * var(--size)));
     background: black;
 }
 
 .symbol {
     display: block;
-    width: var(--size);
-    height: var(--size);
+    width: calc(1px * var(--size));
+    height: calc(1px * var(--size));
     box-sizing: border-box;
     position: relative;
     background: black var(--bg) top left;
@@ -46,8 +46,8 @@ body {
     position: absolute;
     top: 0;
     left: 0;
-    width: var(--size);
-    height: var(--size);
+    width: calc(1px * var(--size));
+    height: calc(1px * var(--size));
     text-align: center;
     color: red;
     content: attr(data-icon);

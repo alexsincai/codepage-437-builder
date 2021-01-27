@@ -24,10 +24,8 @@ const processTiles = (data = {}) => ({
 });
 
 const updateGraphic = (el) => {
-    let s = size + 1;
-
-    el.style.backgroundPositionX = `-${el.dataset.x * s}px`;
-    el.style.backgroundPositionY = `-${el.dataset.y * s}px`;
+    el.style.backgroundPositionX = `-${el.dataset.x * size}px`;
+    el.style.backgroundPositionY = `-${el.dataset.y * size}px`;
 };
 
 const draw = (el, i) => {
@@ -69,20 +67,28 @@ const setup = () => {
         draw(s, i);
         s.addEventListener("click", (e) => {
             last = e.target;
-            document.querySelector("#code").innerText = last.dataset.code;
 
-            focal.style.gridColumnStart = parseInt(last.dataset.x, 10) + 1;
-            focal.style.gridRowStart = parseInt(last.dataset.y, 10) + 1;
+            document.querySelector(
+                "#code"
+            ).innerText = `chr(${e.target.dataset.code}) # ${e.target.dataset.icon}`;
+
+            focal.style.gridColumnStart = parseInt(e.target.dataset.x, 10) + 1;
+            focal.style.gridRowStart = parseInt(e.target.dataset.y, 10) + 1;
         });
     });
 
     document.querySelector("#holder").addEventListener("mouseover", () => {
-        html2canvas(document.querySelector("#renderer"), {
-            onrendered: (c) => {
-                document.querySelector("#output").innerHTML = "";
-                document.querySelector("#output").append(c);
-                canvas = c;
-            },
+        // html2canvas(document.querySelector("#renderer"), {
+        //     onrendered: (c) => {
+        //         document.querySelector("#output").innerHTML = "";
+        //         document.querySelector("#output").append(c);
+        //         canvas = c;
+        //     },
+        // });
+        html2canvas(document.querySelector("#renderer")).then((c) => {
+            document.querySelector("#output").innerHTML = "";
+            document.querySelector("#output").append(c);
+            canvas = c;
         });
     });
 
@@ -94,14 +100,14 @@ const setup = () => {
         let top = r.top;
         let bottom = r.top + r.height;
 
-        let x = Math.floor(mapRange(e.clientX, left, right, 1, tilesx));
-        let y = Math.floor(mapRange(e.clientY, top, bottom, 1, tilesy));
+        let x = Math.round(mapRange(e.clientX, left, right, 0, tilesx - 1));
+        let y = Math.round(mapRange(e.clientY, top, bottom, 0, tilesy - 1));
 
-        focal.style.gridColumnStart = x;
-        focal.style.gridRowStart = y;
+        focal.style.gridColumnStart = x + 1;
+        focal.style.gridRowStart = y + 1;
 
-        last.dataset.x = x - 1;
-        last.dataset.y = y - 1;
+        last.dataset.x = x;
+        last.dataset.y = y;
 
         updateGraphic(last);
         saveData(processTiles(data));
